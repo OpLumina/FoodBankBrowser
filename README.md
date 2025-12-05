@@ -8,10 +8,9 @@ Layout:
 
 Path to Files on Site
 
-├── index.html
-
-└── Datasets 
-
+food-pantry-browser/
+├── index.html        (The main application HTML, CSS, and JavaScript)
+└── Datasets/         (Folder containing all state-specific JSON data)
     ├── ak_food_pantries.json
-    └── al_food_pantries.json
+    ├── al_food_pantries.json
     └── ... (other state files)
