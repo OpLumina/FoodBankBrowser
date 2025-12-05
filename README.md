@@ -7,7 +7,11 @@ simply run index.html (on a server like xampp) or publish on a website to use.
 Layout:
 Path to Files on Site/
 ├── index.html
+
 └── Datasets/
+
     ├── ak_food_pantries.json
+    
     └── al_food_pantries.json
+    
     └── ... (other state files)
