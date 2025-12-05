@@ -2,10 +2,10 @@
 
 Simply run index.html (on a server like XAMPP or Live Server) or publish to a website to use.
 
-### Layout: Path to Files on Site
+### Layout: 
 
 ```
-food-pantry-browser/
+food-pantry-browser (or other path to files)/
 ├── index.html        (The main application HTML, CSS, and JavaScript)
 └── Datasets/         (Folder containing all state-specific JSON data)
     ├── ak_food_pantries.json
