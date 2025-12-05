@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Food Pantry Resource Browser</title>
+
+    <style>
+        /* Variables for easy color changes */
+        :root {
+            --color-primary: #4CAF50; /* A friendly green */
+            --color-secondary: #FF9800; /* Orange for warnings */
+            --color-background: #f4f7f6;
+            --color-card: #ffffff;
+            --color-text-dark: #1f2937;
+            --color-text-medium: #6b7280;
+            --color-text-light: #9ca3af;
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 1. Global Styles */
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            color: var(--color-text-dark);
+            line-height: 1.6;
+            background-color: var(--color-background);
+        }
+
+        main {
+            padding: 40px 20px;
+        }
+
+        #app-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 2. Typography & Header */
+        .page-title-section h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-dark);
+        }
+
+        .page-title-section p {
+            color: var(--color-text-medium);
+            margin-bottom: 2rem;
+        }
+
+        /* 3. Controls Section */
+        .controls-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .control-group {
+                flex-direction: row;
+            }
+        }
+
+        .control-item {
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .control-item label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--color-text-medium);
+            margin-bottom: 0.25rem;
+        }
+
+        #state-selector, #search-input {
+            display: block;
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #ccc;
+            background-color: var(--color-card);
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            font-size: 1rem;
+            transition: all 0.15s ease-in-out;
+        }
+
+        #state-selector:focus, #search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+        }
+
+        #search-input:disabled {
+            background-color: #e5e7eb;
+            cursor: not-allowed;
+        }
+
+        .filepath-display {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--color-text-medium);
+            font-family: monospace;
+            word-break: break-all;
+            min-height: 1.5rem;
+        }
+
+
+        /* 4. Card & List Styles */
+        .card {
+            background-color: var(--color-card);
+            padding: 24px;
+            border-radius: 1rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .list-container h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .list-container ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .list-item {
+            padding: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .list-item:hover {
+            background-color: #f9fafb;
+        }
+
+        .list-item .item-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--color-primary);
+            margin: 0;
+        }
+
+        .list-item .item-location {
+            font-size: 0.875rem;
+            color: var(--color-text-medium);
+            margin-top: 0.25rem;
+        }
+
+        /* 5. Detail View Styles */
+        .back-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--color-primary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            margin-bottom: 1rem;
+            transition: color 0.15s ease-in-out;
+        }
+
+        .back-button:hover { color: #388E3C; }
+
+        .back-button svg {
+            height: 1rem;
+            width: 1rem;
+            margin-right: 0.25rem;
+        }
+
+        .detail-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+        }
+
+        .detail-name {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--color-text-dark);
+            margin: 0;
+        }
+
+        .detail-id-badge {
+            background-color: var(--color-primary);
+            color: var(--color-card);
+            font-size: 0.875rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-section-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #4b5563;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .detail-row {
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 640px) {
+            .detail-row {
+                flex-direction: row;
+                align-items: baseline;
+            }
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--color-text-medium);
+            width: 100%;
+            margin-bottom: 4px;
+        }
+
+        @media (min-width: 640px) {
+            .detail-label {
+                width: 33.333333%;
+                margin-bottom: 0;
+            }
+        }
+
+        .detail-value {
+            color: var(--color-text-dark);
+            width: 100%;
+            word-break: break-word;
+        }
+
+        @media (min-width: 640px) {
+            .detail-value {
+                width: 66.666667%;
+            }
+        }
+
+        .detail-metadata {
+            font-size: 0.75rem;
+            color: var(--color-text-light);
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            text-align: right;
+        }
+
+        .link-style {
+            color: var(--color-primary);
+            text-decoration: underline;
+            transition: color 0.15s ease-in-out;
+        }
+
+        .link-style:hover {
+            color: #388E3C;
+        }
+
+
+        /* 6. Message Box Styles */
+        .message-box {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .message-box.loading p {
+            font-size: 1.25rem;
+            color: var(--color-primary);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .message-box.warning {
+            border-left: 5px solid var(--color-secondary);
+        }
+
+        .message-box.error {
+            border-left: 5px solid #ef4444; /* Red */
+        }
+
+        .message-box .message-header {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .message-box.warning .message-header {
+            color: #d97706; /* Darker Orange */
+        }
+
+        .message-box.error .message-header {
+            color: #b91c1c; /* Darker Red */
+        }
+
+        .message-box .message-text {
+            color: var(--color-text-medium);
+        }
+
+        .message-box .message-small-text {
+            font-size: 0.875rem;
+            color: var(--color-text-light);
+            margin-top: 1rem;
+        }
+
+        .button-style {
+            margin-top: 1rem;
+            background-color: var(--color-primary);
+            color: var(--color-card);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .button-style:hover {
+            background-color: #388E3C;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="page-container">
+        
+        <main>
+            <div id="app-container">
+                <div class="page-title-section">
+                    <h1>Food Pantry Resource Browser</h1>
+                    <p>Select a state to view a list of available food pantry records. Click any item in the list to view its full details.</p>
+                </div>
+
+                <div class="controls-section">
+                    <div class="control-group">
+                        <div class="control-item">
+                            <label for="state-selector">Select a State:</label>
+                            <select id="state-selector">
+                                <option value="" disabled selected>Choose State</option>
+                            </select>
+                        </div>
+                        <div class="control-item">
+                            <label for="search-input">Filter by Name or City:</label>
+                            <input type="text" id="search-input" placeholder="Start typing to filter results..." disabled>
+                        </div>
+                    </div>
+                    <p id="filepath-display" class="filepath-display"></p>
+                </div>
+
+                <div id="pantry-card-container">
+                    <div id="initial-message" class="card message-box loading">
+                        <p>Select a State to load data...</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let rawDataset = [];       // Stores the original, unfiltered dataset
+        let currentDataset = [];   // Stores the currently displayed (filtered) dataset
+        let currentStateCode = null; // Store the currently loaded state
+
+        // All available states with datasets
+        const availableStates = ['ak', 'al', 'ar', 'az', 'ca', 'co', 'ct', 'dc', 'de', 'fl', 'ga', 'hi', 'ia', 'id', 'il', 'in', 'ks', 'ky', 'la', 'ma', 'md', 'me', 'mi', 'mn', 'mo', 'ms', 'mt', 'nc', 'nd', 'ne', 'nh', 'nj', 'nm', 'nv', 'ny', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'va', 'vt', 'wa', 'wi', 'wv', 'wy'];
+
+        // State names mapping
+        const stateNames = {
+            'ak': 'Alaska', 'al': 'Alabama', 'ar': 'Arkansas', 'az': 'Arizona',
+            'ca': 'California', 'co': 'Colorado', 'ct': 'Connecticut',
+            'dc': 'District of Columbia', 'de': 'Delaware', 'fl': 'Florida',
+            'ga': 'Georgia', 'hi': 'Hawaii', 'ia': 'Iowa', 'id': 'Idaho',
+            'il': 'Illinois', 'in': 'Indiana', 'ks': 'Kansas', 'ky': 'Kentucky',
+            'la': 'Louisiana', 'ma': 'Massachusetts', 'md': 'Maryland',
+            'me': 'Maine', 'mi': 'Michigan', 'mn': 'Minnesota', 'mo': 'Missouri',
+            'ms': 'Mississippi', 'mt': 'Montana', 'nc': 'North Carolina',
+            'nd': 'North Dakota', 'ne': 'Nebraska', 'nh': 'New Hampshire',
+            'nj': 'New Jersey', 'nm': 'New Mexico', 'nv': 'Nevada',
+            'ny': 'New York', 'oh': 'Ohio', 'ok': 'Oklahoma', 'or': 'Oregon',
+            'pa': 'Pennsylvania', 'ri': 'Rhode Island', 'sc': 'South Carolina',
+            'sd': 'South Dakota', 'tn': 'Tennessee', 'tx': 'Texas', 'ut': 'Utah',
+            'va': 'Virginia', 'vt': 'Vermont', 'wa': 'Washington',
+            'wi': 'Wisconsin', 'wv': 'West Virginia', 'wy': 'Wyoming'
+        };
+
+        /**
+         * Populates the state selector dropdown with all available states
+         */
+        function populateStateSelector() {
+            const stateSelector = document.getElementById('state-selector');
+            if (!stateSelector) return;
+
+            availableStates.forEach(stateCode => {
+                const option = document.createElement('option');
+                option.value = stateCode.toLowerCase();
+                option.textContent = stateCode.toUpperCase();
+                stateSelector.appendChild(option);
+            });
+        }
+
+        /**
+         * Fetches the entire dataset array for a given state.
+         * NOTE: The file path has been simplified to use the new local structure.
+         * @param {string} stateCode The two-letter state code (e.g., 'ak', 'ca').
+         * @returns {Promise<Object>} A promise resolving to an object containing the data array, error message, and file URL.
+         */
+        async function fetchDatasetByState(stateCode) {
+            if (!stateCode) return { data: null, url: null };
+
+            // Modified to the new path: ./Datasets/<stateabbreviation>_food_pantries.json
+            const url = `./Datasets/${stateCode.toLowerCase()}_food_pantries.json`;
+            console.log('Attempting to fetch data from:', url);
+
+            try {
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    console.error('Failed to fetch data for state:', stateCode, response.status);
+                    const errorText = await response.text();
+                    let errorMessage = errorText || `Dataset for ${stateCode.toUpperCase()} not found or failed to load. (Status: ${response.status})`;
+                    return { error: errorMessage, url: url };
+                }
+
+                const data = await response.json();
+                return { data: data, url: url };
+
+            } catch (e) {
+                console.error('Network or parsing error:', e);
+                return { error: `A network or parsing error occurred while loading data for ${stateCode.toUpperCase()}. Error: ${e.message}`, url: url };
+            }
+        }
+
+        // --- Helper Functions ---
+
+        /** Creates HTML for a single detail row. */
+        function createDetailRow(label, value) {
+            if (!value) return '';
+            // Simple markdown conversion for new lines in hours/description
+            let displayValue = String(value).replace(/\r?\n/g, '<br>');
+            
+            return `
+                <div class="detail-row">
+                    <span class="detail-label">${label}:</span>
+                    <span class="detail-value">${displayValue}</span>
+                </div>
+            `;
+        }
+
+        /** Filters the raw dataset based on a search term and renders the list view. */
+        function filterAndRenderList(searchTerm = '') {
+            const searchInput = document.getElementById('search-input');
+            const term = searchTerm.toLowerCase().trim();
+
+            if (!term) {
+                currentDataset = rawDataset;
+            } else {
+                currentDataset = rawDataset.filter(item => 
+                    item.name.toLowerCase().includes(term) || 
+                    item.city.toLowerCase().includes(term)
+                );
+            }
+
+            renderListView(currentDataset, currentStateCode, term);
+
+            // Re-enable search input once data is present
+            searchInput.disabled = rawDataset.length === 0;
+            searchInput.value = searchTerm;
+        }
+
+        /** Handles clicking an item in the list view to switch to detail view. */
+        window.handleItemClick = function(id) {
+            // Use the currently displayed (filtered) dataset
+            const record = currentDataset.find(item => item.id === id);
+            if (record) {
+                renderDetailView(record);
+            } else {
+                // Rewritten to use new CSS classes
+                document.getElementById('pantry-card-container').innerHTML = `
+                    <div class="card message-box error">
+                        <h2 class="message-header">Record Not Found</h2>
+                        <p class="message-text">Could not find record with ID ${id} in the current dataset.</p>
+                        <button onclick="goBackToList()" class="button-style">Back to List</button>
+                    </div>
+                `;
+            }
+        };
+
+        /** Returns the view to the last loaded list. */
+        window.goBackToList = function() {
+            // Re-render the last filtered view
+            const searchInput = document.getElementById('search-input');
+            filterAndRenderList(searchInput.value);
+        };
+
+
+        // --- Render Views ---
+
+        /** Renders the list of food pantries from the loaded dataset. */
+        function renderListView(dataset, stateCode, filterTerm = '') {
+            const container = document.getElementById('pantry-card-container');
+            
+            if (dataset.length === 0 && rawDataset.length > 0) {
+                 // Rewritten to use new CSS classes
+                 container.innerHTML = `
+                    <div class="card message-box warning">
+                        <h2 class="message-header">No Matches Found</h2>
+                        <p class="message-text">No food pantries matched the search term <strong>"${filterTerm}"</strong> in ${stateCode.toUpperCase()}. Try a different term.</p>
+                    </div>
+                `;
+                return;
+            }
+             if (dataset.length === 0 && rawDataset.length === 0) {
+                 // Rewritten to use new CSS classes
+                 container.innerHTML = `<div class="card message-box warning"><h2 class="message-header">No Records Found</h2><p class="message-text">The dataset loaded successfully, but contained no food pantry records for ${stateCode.toUpperCase()}.</p></div>`;
+                return;
+            }
+
+            const listHtml = dataset.map(item => `
+                <li class="list-item" 
+                    onclick="handleItemClick(${item.id})">
+                    <h3 class="item-name">${item.name}</h3>
+                    <p class="item-location">${item.city}, ${item.state}</p>
+                </li>
+            `).join('');
+
+            // Rewritten to use new CSS classes
+            container.innerHTML = `
+                <div class="card list-container">
+                    <h2>Food Pantries in ${stateCode.toUpperCase()} (${dataset.length} of ${rawDataset.length} shown)</h2>
+                    <ul>${listHtml}</ul>
+                </div>
+            `;
+        }
+
+
+        /** Renders the detailed card view for a single food pantry record. */
+        function renderDetailView(record) {
+            const container = document.getElementById('pantry-card-container');
+            
+            // Format contact links (using new link-style class)
+            const emailLink = record.email ? `<a href="mailto:${record.email}" class="link-style">${record.email}</a>` : 'N/A';
+            const websiteLink = record.url ? `<a href="${record.url}" target="_blank" rel="noopener" class="link-style">${record.url}</a>` : 'N/A';
+            const phoneLink = record.phone ? `<a href="tel:${record.phone.replace(/[^0-9]/g, '')}" class="link-style">${record.phone}</a>` : 'N/A';
+
+            // Rewritten to use new CSS classes
+            container.innerHTML = `
+                <div class="card detail-container">
+                    
+                    <button onclick="goBackToList()" class="back-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Back to List
+                    </button>
+
+                    <div class="detail-header">
+                        <h2 class="detail-name">${record.name}</h2>
+                        <span class="detail-id-badge">ID: ${record.id}</span>
+                    </div>
+
+                    <div class="detail-grid">
+                        <h3 class="detail-section-header">Location</h3>
+                        ${createDetailRow('Street Address', record.address)}
+                        ${createDetailRow('City, State, Zip', `${record.city}, ${record.state} ${record.zip}`)}
+                        ${createDetailRow('Geocoded Address', record.geocoded_address)}
+                        <div class="detail-row">
+                            <span class="detail-label">Map Coordinates:</span>
+                            <span class="detail-value">${record.latitude}, ${record.longitude}</span>
+                        </div>
+                        
+                        <h3 class="detail-section-header">Operation</h3>
+                        ${createDetailRow('Hours/Volunteering', record.hours)}
+                        ${createDetailRow('Description', record.description)}
+                        ${createDetailRow('Requirements', record.requirements || 'None listed')}
+                        
+                        <h3 class="detail-section-header">Contact</h3>
+                        ${createDetailRow('Phone', phoneLink)}
+                        ${createDetailRow('Email', emailLink)}
+                        ${createDetailRow('Website', websiteLink)}
+                        
+                        <p class="detail-metadata">Scraped At: ${new Date(record.scraped_at).toLocaleString()}</p>
+
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Main Controller ---
+
+        /** Function to handle state selection and data fetching. */
+        async function handleStateChange() {
+            const stateSelector = document.getElementById('state-selector');
+            const searchInput = document.getElementById('search-input');
+            const pathDisplay = document.getElementById('filepath-display');
+            const container = document.getElementById('pantry-card-container');
+            const selectedState = stateSelector.value;
+
+            if (!selectedState) {
+                container.innerHTML = `<div id="initial-message" class="card message-box loading"><p>Select a State to load data...</p></div>`;
+                pathDisplay.textContent = '';
+                // Disable search and clear data on reset
+                searchInput.disabled = true;
+                searchInput.value = '';
+                rawDataset = [];
+                currentDataset = [];
+                currentStateCode = null;
+                return;
+            }
+
+            pathDisplay.textContent = `Path: Loading data for ${selectedState.toUpperCase()}...`;
+            // Rewritten to use new CSS classes
+            container.innerHTML = `<div class="card message-box loading"><p>Loading dataset for ${selectedState.toUpperCase()}...</p></div>`;
+
+            // Disable search while loading
+            searchInput.disabled = true;
+            searchInput.value = '';
+            rawDataset = [];
+
+            const { data: dataset, url, error } = await fetchDatasetByState(selectedState);
+
+            // Display user-friendly state name
+            const stateName = stateNames[selectedState.toLowerCase()] || selectedState.toUpperCase();
+
+            if (error) {
+                pathDisplay.textContent = `Failed to load ${stateName} Pantries`;
+                // Rewritten to use new CSS classes
+                container.innerHTML = `<div class="card message-box error"><h2 class="message-header">Error Loading Data</h2><p class="message-text">${error}</p><p class="message-small-text">Please check if the file path is correct: ${url}</p></div>`;
+                return;
+            }
+
+            pathDisplay.textContent = `Loaded ${stateName} Pantries`;
+            
+            // Store the full dataset and state code globally
+            rawDataset = dataset || [];
+
+            // Ensure all records have an ID field (auto-generate if missing)
+            rawDataset.forEach((record, index) => {
+                if (!record.id && record.id !== 0) {
+                    record.id = index + 1;
+                }
+            });
+
+            currentStateCode = selectedState;
+
+            // Immediately filter and render (with an empty search term)
+            filterAndRenderList('');
+        }
+
+        /** Function to attach all necessary event listeners and start the application. */
+        function initializeApp() {
+            // First, populate the state selector with all available states
+            populateStateSelector();
+
+            const stateSelector = document.getElementById('state-selector');
+            const searchInput = document.getElementById('search-input');
+
+            // Listen for state changes to load new data
+            stateSelector.addEventListener('change', handleStateChange);
+
+            // Listen for input on the search box to filter the list in real-time
+            searchInput.addEventListener('input', (e) => {
+                // Only filter if a dataset is currently loaded
+                if (rawDataset.length > 0) {
+                    filterAndRenderList(e.target.value);
+                }
+            });
+        }
+
+        // Start the application once the DOM is fully loaded
+        window.onload = initializeApp;
+    </script>
+</body>
+</html>
