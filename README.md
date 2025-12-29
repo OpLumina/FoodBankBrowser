@@ -1,4 +1,4 @@
-(Free Use) A browser for food banks in the United States of America. To run on a local server or to publish to a website.
+(Free Use) A browser for thousands of food banks in the United States of America. To run on a local server or to publish to a website.
 
 Simply run index.html (on a server like XAMPP or Live Server) or publish to a website to use.
 
